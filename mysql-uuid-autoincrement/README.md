@@ -1,5 +1,5 @@
 **Download and unzip SQL dump**
-* [16 mln records file](https://drive.google.com/drive/folders/1Id_v0nqeoPjqwxmPSZs4etDFAooCerDV?usp=sharing)
+* [16 mln records file](https://drive.google.com/file/d/1trDelSg0g0SBLFtqjUx2-9gnrEpI6hqs/view?usp=sharing)
 
 **Install docker and run mysql**
 

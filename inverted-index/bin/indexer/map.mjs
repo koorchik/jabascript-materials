@@ -3,7 +3,7 @@ import { tokenize } from '../../lib/language-utils.mjs';
 
 const db = new DB();
 
-const BATCH_SIZE = 100_000;
+const BATCH_SIZE = 10_000;
 
 async function main() {
   const totalProducts = await db.getProductsCount();

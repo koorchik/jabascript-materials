@@ -19,8 +19,8 @@ export function compressEntries(entry) {
   return encode(FastIntegerCompression.compress(deltaCompressed));
 }
 
-export function decompressEntries(data) {
-  const numbers = FastIntegerCompression.uncompress(decode(data));
+export function decompressEntries(data, decodeBase64 = false) {
+  const numbers = FastIntegerCompression.uncompress(decodeBase64 ? decode(data): data);
   const entries = {};
 
   let prevDocId = 0;

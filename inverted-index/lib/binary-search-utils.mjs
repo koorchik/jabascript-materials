@@ -13,20 +13,23 @@ const DEFAULT_COMPARE_FN = async (searchValue, candidateValue) => {
 const DEFAULT_CHUNK_SIZE = 4000;
 const DEFAULT_DELIMITER = "\n";
 
-async function readChunk({ fileHandle, chunkSize, position }) {
+export async function readChunk({ fileHandle, chunkSize, position }) {
   const { buffer, bytesRead } = await fileHandle.read({
-    buffer: Buffer.alloc(chunkSize),
-    length: chunkSize,
-    position: position
+    buffer: Buffer.alloc(Number(chunkSize)),
+    length: Number(chunkSize),
+    position: Number(position)
   });
 
-  const bufferCorrectSize = Buffer.allocUnsafe(bytesRead);
-  buffer.copy(bufferCorrectSize, 0, 0, bytesRead);
-
-  return bufferCorrectSize.toString();
+  if (bytesRead === chunkSize) {
+    return buffer;
+  } else {
+    const bufferCorrectSize = Buffer.allocUnsafe(bytesRead);
+    buffer.copy(bufferCorrectSize, 0, 0, bytesRead);
+    return bufferCorrectSize;
+  }
 }
 
-export default async function binarySearchInFile({
+export async function binarySearchInFile({
   filename,
   searchValue,
   compareFn = DEFAULT_COMPARE_FN,
@@ -61,23 +64,50 @@ export default async function binarySearchInFile({
     }
 
     const midLine = mid === 0 ? parts[0] : parts[1];
-    const cmpResult = await compareFn(searchValue, midLine);
+    const cmpResult = compareFn(searchValue, midLine);
 
     if (cmpResult === 0) {
       await fileHandle.close();
-      return { found: true, record: midLine };
-    }
-
-    if (cmpResult === 1) {
+      return { found: true, record: midLine, searchValue };
+    } else if (cmpResult === 1) {
       start = mid;
-    } else {
+    } else if (cmpResult === -1) {
       end = mid;
+    } else {
+      throw new Error('"compareFn" should return 0|1|-1')
     }
 
     if (start === mid && (end - start) === 1) {
-      return { found: false };
+      return { found: false, searchValue };
     }
   }
 
   return { found: false, record: null };
+}
+
+export function binarySearchInArray({
+  array,
+  searchValue,
+  compareFn = DEFAULT_COMPARE_FN,
+}) {
+  let start = 0;
+  let end = array.length - 1;
+
+  while (start <= end) {
+    let mid = Math.floor((start + end) / 2);
+
+    const cmpResult = compareFn(searchValue, array[mid]);
+
+    if (cmpResult === 0) {
+      return { found: true, record: array[mid], searchValue };
+    } else if (cmpResult === 1) {
+      start = mid + 1;
+    } else if (cmpResult === -1) {
+      end = mid - 1;
+    } else {
+      throw new Error('"compareFn" should return 0|1|-1')
+    }
+  }
+
+  return { found: false, searchValue };
 }

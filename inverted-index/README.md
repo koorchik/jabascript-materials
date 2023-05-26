@@ -26,7 +26,9 @@ docker exec -it d36185b37eea mysql -u root -ppassword
 
 ### Create inverted index
 
+
 ```bash
+# Can take several hours
 node bin/indexer/map.mjs | sort -k1,1 | node bin/indexer/reduce.mjs > data/index.data
 ```
 
@@ -62,5 +64,3 @@ CREATE FULLTEXT INDEX ftx ON products(description);
 ```SQL
 SELECT id FROM products WHERE MATCH (description) AGAINST ('"airmailing wended mahatmas"' IN BOOLEAN MODE);
 ```
-
-

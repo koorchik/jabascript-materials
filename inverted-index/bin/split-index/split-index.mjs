@@ -14,8 +14,8 @@ await splitIndexFile({
 
 async function splitIndexFile(args) {
   const fileStream = fs.createReadStream(args.inputIndexFile);
-  const tokenFile = fs.createWriteStream(args.outputTokensFile);
-  const stringFile = fs.createWriteStream(args.outputEntriesFile);
+  const tokensFile = fs.createWriteStream(args.outputTokensFile);
+  const entriesFile = fs.createWriteStream(args.outputEntriesFile);
 
   const rl = readline.createInterface({
     input: fileStream,
@@ -33,15 +33,15 @@ async function splitIndexFile(args) {
 
       const tokenData = `${token}\t${currentPosition}\t${entriesSize}\n`;
 
-      await tokenFile.write(tokenData);
-      await stringFile.write(entries);
+      await tokensFile.write(tokenData);
+      await entriesFile.write(entries);
 
       currentPosition += entriesSize;
     }
   }
 
-  tokenFile.end();
-  stringFile.end();
+  tokensFile.end();
+  entriesFile.end();
 }
 
 

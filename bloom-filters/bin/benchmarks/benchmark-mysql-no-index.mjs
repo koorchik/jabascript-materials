@@ -1,36 +1,12 @@
 import mysql from "mysql2/promise";
-import fs from "fs";
-import readline from "readline";
-import { performance } from "perf_hooks";
+import { timer, loadSampleKeys, generateNewKeys } from "../../src/utils/benchmark.mjs";
 
-const FILE_PATH = "generated.data";
 const TEST_COUNT = 10; // ⚠️ VERY LOW NUMBER due to Full Table Scan!
-
-function generateMissingKeys(count) {
-  return Array.from(
-    { length: count },
-    (_, i) => `item_999999${i}_${Math.random().toString(36).substring(2, 6)}`
-  );
-}
-
-async function loadSampleKeys(count) {
-  const keys = [];
-  const rl = readline.createInterface({
-    input: fs.createReadStream(FILE_PATH),
-    crlfDelay: Infinity
-  });
-
-  for await (const line of rl) {
-    keys.push(line);
-    if (keys.length >= count) break;
-  }
-  return keys;
-}
 
 async function run() {
   console.log(`Loading sample data into memory (Only ${TEST_COUNT} items)...`);
-  const existingKeys = await loadSampleKeys(TEST_COUNT);
-  const missingKeys = generateMissingKeys(TEST_COUNT);
+  const existingKeys = await loadSampleKeys("generated.data", TEST_COUNT);
+  const missingKeys = generateNewKeys(TEST_COUNT);
 
   const db = await mysql.createConnection({
     host: "localhost",
@@ -64,32 +40,30 @@ async function run() {
   const checkQuery = "SELECT 1 FROM items WHERE item_key = ? LIMIT 1";
 
   let foundExisting = 0;
-  const startHasExisting = performance.now();
+  let elapsed = timer();
   for (let i = 0; i < existingKeys.length; i++) {
     const [rows] = await db.execute(checkQuery, [existingKeys[i]]);
     if (rows.length > 0) foundExisting++;
   }
-  const endHasExisting = performance.now();
+  const hasExistingTime = elapsed();
 
   let falsePositives = 0;
-  const startHasMissing = performance.now();
+  elapsed = timer();
   for (let i = 0; i < missingKeys.length; i++) {
     const [rows] = await db.execute(checkQuery, [missingKeys[i]]);
     if (rows.length > 0) falsePositives++;
   }
-  const endHasMissing = performance.now();
+  const hasMissingTime = elapsed();
 
   console.log(
-    `Has (existing) time : ${Math.round(endHasExisting - startHasExisting)} ms for ${TEST_COUNT} queries`
+    `Has (existing) time : ${hasExistingTime} ms for ${TEST_COUNT} queries`
   );
   console.log(
-    `Has (missing) time  : ${Math.round(endHasMissing - startHasMissing)} ms for ${TEST_COUNT} queries`
+    `Has (missing) time  : ${hasMissingTime} ms for ${TEST_COUNT} queries`
   );
 
   // Projected time if we did 100,000 queries
-  const projectedTime = Math.round(
-    (endHasMissing - startHasMissing) * (100000 / TEST_COUNT)
-  );
+  const projectedTime = Math.round(hasMissingTime * (100000 / TEST_COUNT));
   console.log(
     `\n🕒 If we did 100,000 queries like Bloom/Map, it would take ~${Math.round(projectedTime / 1000 / 60)} MINUTES!`
   );

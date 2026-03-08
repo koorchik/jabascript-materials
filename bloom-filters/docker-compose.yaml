@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mysql:9
+    restart: always
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: password
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - '8888:8080'
+    depends_on:
+      - db
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+
+  memcached:
+    image: memcached:alpine
+    restart: always
+    command: memcached -m 1024
+    ports:
+      - '11211:11211'      

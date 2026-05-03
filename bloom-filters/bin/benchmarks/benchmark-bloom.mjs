@@ -3,9 +3,13 @@ import {
   computeBloomFilterParams
 } from "../../src/BloomFilter.mjs";
 import fs from "fs";
-import { timer, loadAllKeys, generateNewKeys } from "../../src/utils/benchmark.mjs";
+import {
+  timer,
+  loadAllKeys,
+  generateNewKeys
+} from "../../src/utils/benchmark.mjs";
 
-const EXPECTED_ITEMS = 10_000_000;
+const EXPECTED_ITEMS = 5_000_000;
 const FPR_TARGET = 0.01;
 const TEST_COUNT = 100_000;
 

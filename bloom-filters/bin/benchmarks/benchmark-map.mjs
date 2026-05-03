@@ -36,12 +36,12 @@ async function run() {
   }
   const hasMissingTime = elapsed();
 
-  console.log(`Add time            : ${addTime} ms`);
+  console.log(`Add time            : ${addTime} ms for ${allKeys.length.toLocaleString()} items`);
   console.log(
     `Memory (Heap delta) : ${((memAfter - memBefore) / 1024 / 1024).toFixed(2)} MB`
   );
-  console.log(`Has (existing) time : ${hasExistingTime} ms`);
-  console.log(`Has (missing) time  : ${hasMissingTime} ms`);
+  console.log(`Has (existing) time : ${hasExistingTime} ms for ${TEST_COUNT} queries`);
+  console.log(`Has (missing) time  : ${hasMissingTime} ms for ${TEST_COUNT} queries`);
   console.log(`False Positives     : ${falsePositives} (0%)`);
 }
 

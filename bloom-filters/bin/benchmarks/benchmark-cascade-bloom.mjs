@@ -53,10 +53,10 @@ async function run() {
 
   const fpr = (falsePositives / TEST_COUNT) * 100;
 
-  console.log(`Add time            : ${addTime} ms`);
+  console.log(`Add time            : ${addTime} ms for ${allKeys.length.toLocaleString()} items`);
   console.log(`Memory (Fixed)      : ~${totalMemoryMB.toFixed(2)} MB`);
-  console.log(`Has (existing) time : ${hasExistingTime} ms`);
-  console.log(`Has (missing) time  : ${hasMissingTime} ms`);
+  console.log(`Has (existing) time : ${hasExistingTime} ms for ${TEST_COUNT} queries`);
+  console.log(`Has (missing) time  : ${hasMissingTime} ms for ${TEST_COUNT} queries`);
   console.log(`False Positives     : ${falsePositives} / ${TEST_COUNT}`);
   console.log(`Actual FPR          : ${fpr.toFixed(3)}%`);
   console.log(`Cascade Levels      : ${cascade.levels.length}`);
